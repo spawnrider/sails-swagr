@@ -1,26 +1,28 @@
-{swagger-express}
+sails-swagr
 =========
+
+Originally forked from [swagger-express](https://github.com/fliptoo/swagger-express), however, heavily 
+customized to meet Swagger 2.0 specifications and to work with sails. At the moment this repo only works 
+with YML doc files.
 
 [Swagger](https://developers.helloreverb.com/swagger/) is a specification and complete framework 
 implementation for describing, producing, consuming, and visualizing RESTful web services.
 View [demo](http://petstore.swagger.wordnik.com/).
 
-__{swagger-express}__ is a simple and clean solution to integrate swagger with express.
+__sails-swagr__ is a simple and clean solution to integrate swagger with express or sails.
 
 ## Installation
 
-    $ npm install -g swagger-express
+    $ npm install sails-swagr --save
 
 ## Quick Start
 
-Configure {swagger-express} as express middleware.
+Configure sails-swagr as express middleware.
 
 
 `apiVersion`      -> Your api version.
 
 `swaggerVersion`  -> Swagger version.
-
-`swaggerUI`       -> Where is your swagger-ui?
 
 `swaggerURL`      -> Path to use for swagger ui web interface.
 
@@ -34,192 +36,75 @@ Configure {swagger-express} as express middleware.
 
 `middleware`      -> Function before response.
 
-```
-var swagger = require('swagger-express');
+## Sails Integration
 
-app.configure(function(){
-  ...
-  app.use(swagger.init(app, {
-    apiVersion: '1.0',
-    swaggerVersion: '1.0',
-    swaggerURL: '/swagger',
-    swaggerJSON: '/api-docs.json',
-    swaggerUI: './public/swagger/',
-    basePath: 'http://localhost:3000',
-    info: {
-      title: 'swagger-express sample app',
-      description: 'Swagger + Express = {swagger-express}'
-    },
-    apis: ['./api.js', './api.yml'],
-    middleware: function(req, res){}
-  }));
-  app.use(app.router);
-  ...
-});
+Modify the `config/http.js` to look like:
+
+```
+customMiddleware: function (app) {
+    var swagger = require('sails-swagr');  
+    var express = require('sails/node_modules/express');
+
+    app.use(swagger.init(express, app, {
+        apiVersion: '1.0',
+        swaggerVersion: '2.0',
+        swaggerURL: '/api/docs',
+        swaggerJSON: '/api-docs.json',
+        basePath: sails.getBaseurl(),
+        info: {
+          title: ' API Swagger Documentation',
+          description: 'Sails Swagr'
+        },
+        apis: [
+          './api/docs/Cards.yml', 
+          './api/docs/Stories.yml',
+          './api/docs/Users.yml',
+        ]
+    })); 
+  }
+
 ```
 
 [info]: https://github.com/wordnik/swagger-spec/blob/master/versions/1.2.md#513-info-object
 
-## Read from jsdoc
-
-Example 'api.js'
-
-```js
-
-/**
- * @swagger
- * resourcePath: /api
- * description: All about API
- */
-
-/**
- * @swagger
- * path: /login
- * operations:
- *   -  httpMethod: POST
- *      summary: Login with username and password
- *      notes: Returns a user based on username
- *      responseClass: User
- *      nickname: login
- *      consumes: 
- *        - text/html
- *      parameters:
- *        - name: username
- *          description: Your username
- *          paramType: query
- *          required: true
- *          dataType: string
- *        - name: password
- *          description: Your password
- *          paramType: query
- *          required: true
- *          dataType: string
- */
-exports.login = function (req, res) {
-  var user = {};
-  user.username = req.param('username');
-  user.password = req.param('password');
-  res.json(user);
-}
-
-/**
- * @swagger
- * models:
- *   User:
- *     id: User
- *     properties:
- *       username:
- *         type: String
- *       password:
- *         type: String    
- */
-```
 
 ## Read from yaml file
 
 Example 'api.yml'
 
 ```yml
-resourcePath: /api
-description: All about API
-apis: 
 
-- path: /login
-  operations:
+paths:
+  /login:
+    post:
+      summary: Login with username and password
+      notes: Returns a user based on username
+      responseClass: User
+      nickname: login
+      consumes: 
+        - text/html
+      parameters:
 
-  - httpMethod: POST
-    summary: Login with username and password
-    notes: Returns a user based on username
-    responseClass: User
-    nickname: login
-    consumes: 
-      - text/html
-    parameters:
+      - name: username
+        dataType: string
+        paramType: query
+        required: true
+        description: Your username
 
-    - name: username
-      dataType: string
-      paramType: query
-      required: true
-      description: Your username
+      - name: password
+        dataType: string
+        paramType: query
+        required: true
+        description: Your password
 
-    - name: password
-      dataType: string
-      paramType: query
-      required: true
-      description: Your password
-
-models:
-    User:
-      id: User
-      properties:
-        username:
-          type: String
-        password:
-          type: String    
+definitions:
+  User:
+    properties:
+      username:
+        type: String
+      password:
+        type: String    
 ```
-
-## Read from jsdoc
-
-Example 'api.coffee'
-
-```coffee
-
-###
- * @swagger
- * resourcePath: /api
- * description: All about API
-###
-
-###
- * @swagger
- * path: /login
- * operations:
- *   -  httpMethod: POST
- *      summary: Login with username and password
- *      notes: Returns a user based on username
- *      responseClass: User
- *      nickname: login
- *      consumes:
- *        - text/html
- *      parameters:
- *        - name: username
- *          description: Your username
- *          paramType: query
- *          required: true
- *          dataType: string
- *        - name: password
- *          description: Your password
- *          paramType: query
- *          required: true
- *          dataType: string
-###
-
-###
- * @swagger
- * models:
- *   User:
- *     id: User
- *     properties:
- *       username:
- *         type: String
- *       password:
- *         type: String
-###
-```
-
-
-## Examples
-
-Clone the {swagger-express} repo, then install the dev dependencies:
-
-    $ git clone git://github.com/fliptoo/swagger-express.git --depth 1
-    $ cd swagger-express
-    $ npm install
-
-and run the example:
-
-    $ cd example
-    $ node app.js
     
 # Credits
 
@@ -229,6 +114,8 @@ and run the example:
 ## License
 
 (The MIT License)
+
+Copyright (c) 2015 qbanguy &lt;heyadrian@gmail.com&gt;
 
 Copyright (c) 2013 Fliptoo &lt;fliptoo.studio@gmail.com&gt;
 
