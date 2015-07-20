@@ -2,14 +2,15 @@ sails-swagr
 =========
 
 Originally forked from [swagger-express](https://github.com/fliptoo/swagger-express), however, heavily 
-customized to meet Swagger 2.0 specifications and to work with sails. At the moment this repo only works 
-with YML doc files.
+customized to meet Swagger 2.0 specifications and to work solely with [Sails](http://sailsjs.org/).
 
-[Swagger](https://developers.helloreverb.com/swagger/) is a specification and complete framework 
-implementation for describing, producing, consuming, and visualizing RESTful web services.
-View [demo](http://petstore.swagger.wordnik.com/).
+__sails-swagr__ is a simple and clean solution to integrate swagger with Sails.
 
-__sails-swagr__ is a simple and clean solution to integrate swagger with express or sails.
+### Summary
+
+This module will do it best to autogenerate everything it can from Sails configuration and create
+a Swagger 2.0 JSON Specification to be used with the Swagger-UI. After routes and models have been generated, 
+you may create a `docs` directory under `api/` and place YML documents with paths definitions for each Controller. As a result, the generated JSONs and YAMLs will be **merged**. 
 
 ## Installation
 
@@ -61,16 +62,28 @@ customMiddleware: function (app) {
           './api/docs/Users.yml',
         ]
     })); 
+    sails.on('ready', function() {
+      swagger.sailsGenerate({
+        routes: sails.router._privateRouter.routes,
+        models: sails.models
+      });
+    });
   }
 
 ```
 
-[info]: https://github.com/wordnik/swagger-spec/blob/master/versions/1.2.md#513-info-object
+#### Swagger-UI
+
+Lift sails and navigate to the specified `swaggerURL` e.g. 
+
+```
+http://localhost:1337/api/docs
+```
 
 
-## Read from yaml file
+## Read from YAML file
 
-Example 'api.yml'
+Example 'Users.yml'
 
 ```yml
 
@@ -105,7 +118,11 @@ definitions:
       password:
         type: String    
 ```
-    
+
+[Swagger](https://developers.helloreverb.com/swagger/) is a specification and complete framework 
+implementation for describing, producing, consuming, and visualizing RESTful web services.
+View [demo](http://petstore.swagger.wordnik.com/).
+
 # Credits
 
 - [Express](https://github.com/visionmedia/express)
@@ -116,8 +133,6 @@ definitions:
 (The MIT License)
 
 Copyright (c) 2015 qbanguy &lt;heyadrian@gmail.com&gt;
-
-Copyright (c) 2013 Fliptoo &lt;fliptoo.studio@gmail.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

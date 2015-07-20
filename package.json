@@ -1,7 +1,7 @@
 {
   "name": "sails-swagr",
   "description": "Swagger API documentation for Sails and Express",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": "ecoqba <heyadrian@gmail.com> fliptoo <fliptoo.studio@gmail.com>, sposmen <sposmen@gmail.com>",
   "main": "./index",
   "dependencies": {
